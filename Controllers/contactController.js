@@ -19,9 +19,11 @@ const createContact = (req,res)=>{
     let {name , email, contact} = req.body;
     if(!name || !email || !contact){
         res.status(400);
-        throw new Error("All field are mandatory");
+        throw new Error("All field are mandatory!!!");
     }
-    res.status(200).json({message : `Create new contact`});
+    else{
+        res.status(201).json({message : `Create new contact`});
+    }
 }
 
 // @desc of update contact
