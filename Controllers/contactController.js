@@ -1,21 +1,21 @@
 // @desc of all contacts
 // @route get /api/contacts
 // @access public
-const getContacts = (req,res) => {
+const getContacts = async (req,res) => {
     res.status(200).json({message : "Get all contacts"});
 }
 
 // @desc of contact
 // @route get /api/contacts/:id
 // @access public
-const getContact = (req,res)=>{
+const getContact = async (req,res)=>{
     res.status(201).json({message : `Get contact for ${req.params.id}`});
 }
 
 // @desc of new contact
 // @route post /api/contacts/:id
 // @access public
-const createContact = (req,res)=>{
+const createContact = async (req,res)=>{
     let {name , email, contact} = req.body;
     if(!name || !email || !contact){
         res.status(400);
@@ -29,14 +29,14 @@ const createContact = (req,res)=>{
 // @desc of update contact
 // @route update /api/contacts
 // @access public
-const updateContact = (req,res)=>{
+const updateContact = async (req,res)=>{
     res.status(200).json({message : `Update contact for ${req.params.id}`});
 }
 
 // @desc of delete contact
 // @route delete /api/contacts
 // @access public
-const deleteContact = (req,res)=>{
+const deleteContact = async (req,res)=>{
     res.status(200).json({message : `Delete contact for ${req.params.id}`});
 }
 
