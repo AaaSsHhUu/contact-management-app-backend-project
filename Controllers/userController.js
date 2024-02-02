@@ -7,18 +7,33 @@ const bcrypt = require("bcrypt");
 // @access public
 const registerUser = asyncHandler(async (req,res)=>{
     let {username, email, password} = req.body;
+    // if any field is empty or undefined
     if(!username || !email || !password){
         res.status(400);
         throw new Error("All fields are mandatory");
     }
+    // if user with given email is already registered
     const userAvailable = await User.findOne({email});
     if(userAvailable){
         res.status(400);
         throw new Error(`User with email : ${email} already registered`);
     }
-
+    // Hashing the password
     let hashedPassword = await bcrypt.hash(password,10); // bcrypt.hash(<plaintext>,<salt_rounds>)
-    console.log(hashedPassword);
+    // console.log(hashedPassword);
+    const user = await User.create({
+        username,
+        email,
+        password : hashedPassword    
+    })
+    
+    if(user){
+        res.status(201).json({_id : user._id, email : user.email})
+    }
+    else{
+        res.status(400);
+        throw new Error("User data is not valid");
+    }
     res.json({message : "registered"});
 })
 
