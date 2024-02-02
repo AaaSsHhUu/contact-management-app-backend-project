@@ -7,7 +7,7 @@ router.post("/register", (req,res)=>{
 router.post("/login", (req,res)=>{
     res.json({message : "Login user"});
 })
-router.post("/current", (req,res)=>{
+router.get("/current", (req,res)=>{
     res.json({message : "Current user information"});
 })
 
