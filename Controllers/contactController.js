@@ -73,6 +73,12 @@ const deleteContact = asyncHandler(async (req,res)=>{
         res.status(404);
         throw new Error("Contact Not Found");
     }
+
+    // If a user is trying to delete contacts of another user
+    if(contact.user_id.toString() !== req.user.id){
+        res.status(403);
+        throw new Error("user don't have permission to update other user contact");
+    }
     await Contact.deleteOne({_id : req.params.id});
     res.status(200).send(contact);
 })
