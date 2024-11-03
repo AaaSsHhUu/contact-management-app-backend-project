@@ -2,10 +2,9 @@ const mongoose = require("mongoose");
 
 const connectdb = async ()=>{
     try{
-        const connect = await mongoose.connect('mongodb://127.0.0.1:27017/contacts_managment');;
+        const connect = await mongoose.connect(process.env.MONGODB_URI);;
         console.log(
-            connect.connection.host, // host -> location/address of the current server where database is runnng
-            connect.connection.name
+            "DB connected to host : ",connect.connection.host, // host -> location/address of the current server where database is runnng
         );
     }
     catch(err){
