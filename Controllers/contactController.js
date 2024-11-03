@@ -4,19 +4,23 @@ const Contact = require("../models/contactModel");
 // @desc of all contacts
 // @route get /api/contacts
 // @access private
-const getContacts = asyncHandler(async (req,res) => {
+const getContacts = asyncHandler(async (req,res,next) => {
     const contacts = await Contact.find();
-    res.status(200).json(contacts);
+    if(!contacts){
+        res.status(404);
+        return next(new Error("Contacts not found"));
+    }
+    return res.status(200).json(contacts);
 })
 
 // @desc of contact
 // @route get /api/contacts/:id
 // @access private
-const getContact = asyncHandler(async (req,res)=>{
+const getContact = asyncHandler(async (req,res,next)=>{
     const contact = await Contact.findById(req.params.id);
     if(!contact){
         res.status(404);
-        throw new Error("Contact Not Found");
+        return next(new Error("Contact Not Found"));
     }
     res.send(contact);
 })
@@ -24,35 +28,40 @@ const getContact = asyncHandler(async (req,res)=>{
 // @desc of new contact
 // @route post /api/contacts/:id
 // @access private
-const createContact = asyncHandler(async (req,res)=>{
+const createContact = asyncHandler(async (req,res,next)=>{
     let {name , email, phone} = req.body;
     if(!name || !email || !phone){
         res.status(400);
-        throw new Error("All field are mandatory!!!");
+        return next(new Error("All field are mandatory!!!"));
     }
-    const contact = await Contact.create({
+    const newContact = await Contact.create({
         name,
         email,
         phone,
         user_id : req.user.id
     })
-    res.status(201).json(contact);
+
+    if(!newContact){
+        res.status(500);
+        return next(new Error("Something went wrong while creating new contact"));
+    }
+    res.status(201).json(newContact);
 })
 
 // @desc of update contact
 // @route update /api/contacts
 // @access private
-const updateContact = asyncHandler(async (req,res)=>{
+const updateContact = asyncHandler(async (req,res,next)=>{
     const contact = await Contact.findById(req.params.id);
     if(!contact){
         res.status(404);
-        throw new Error("Contact Not Found");
+        return next(new Error("Contact Not Found"));
     }
 
     // If a user is trying to update contact of another user
     if(contact.user_id.toString() !== req.user.id){
         res.status(403);
-        throw new Error("User don't have permission to update other user contacts");
+        return next(new Error("Not Authroized to update other's contact"));
     }
 
     const updatedContact = await Contact.findByIdAndUpdate(
@@ -61,26 +70,41 @@ const updateContact = asyncHandler(async (req,res)=>{
         {new : true}
     )
     
-    res.status(200).send(updatedContact);
+    if(!updatedContact){
+        res.status(500);
+        return next(new Error("Something went wrong while updating contact"));
+    }
+
+    res.status(200).json({
+        success : true,
+        message : "Contact updated successfully",
+    });
 })
 
 // @desc of delete contact
 // @route delete /api/contacts
 // @access private
-const deleteContact = asyncHandler(async (req,res)=>{
+const deleteContact = asyncHandler(async (req,res,next)=>{
     const contact = await Contact.findById(req.params.id);
     if(!contact){
         res.status(404);
-        throw new Error("Contact Not Found");
+        return next(new Error("Contact Not Found"));
     }
 
     // If a user is trying to delete contacts of another user
     if(contact.user_id.toString() !== req.user.id){
         res.status(403);
-        throw new Error("user don't have permission to update other user contact");
+        return next(new Error("Not Authorized to delete other's contact"));
     }
-    await Contact.deleteOne({_id : req.params.id});
-    res.status(200).send(contact);
+    const deletedContact = await Contact.deleteOne({_id : req.params.id});
+    if(!deletedContact){
+        res.status(500);
+        return next(new Error("Something went wrong while deleting the contact"));
+    }
+    res.status(200).json({
+        success : true,
+        message : "Contact deleted successfully",
+    });
 })
 
 module.exports = {getContact,getContacts,createContact,updateContact,deleteContact};
